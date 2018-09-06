@@ -1,5 +1,5 @@
 {
-  "name": "diversantvlz/skyeng-test",
+  "name": "diversantvlz/se-test",
   "autoload": {
     "psr-4": {
       "VSDev\\VkApi\\": "src/"

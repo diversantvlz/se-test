@@ -13,8 +13,10 @@ use src\Integration\DataProvider;
 
 class DecoratorManager extends DataProvider
 {
-    public $cache;
-    public $logger;
+    private $user;
+    private $host;
+    protected $cache;
+    protected $logger;
 
     /**
      * @param string $host
@@ -22,14 +24,12 @@ class DecoratorManager extends DataProvider
      * @param string $password
      * @param CacheItemPoolInterface $cache
      */
-    public function __construct($host, $user, $password, CacheItemPoolInterface $cache)
+    public function __construct($host, $user, $password, CacheItemPoolInterface $cache, LoggerInterface $logger)
     {
         parent::__construct($host, $user, $password);
+        $this->user = $user;
+        $this->host = $host;
         $this->cache = $cache;
-    }
-
-    public function setLogger(LoggerInterface $logger)
-    {
         $this->logger = $logger;
     }
 
@@ -49,13 +49,11 @@ class DecoratorManager extends DataProvider
 
             $cacheItem
                 ->set($result)
-                ->expiresAt(
-                    (new DateTime())->modify('+1 day')
-                );
+                ->expiresAt(new DateTime('+1 day'));
 
             return $result;
         } catch (Exception $e) {
-            $this->logger->critical('Error');
+            $this->logger->critical($e->__toString());
         }
 
         return [];
@@ -63,6 +61,6 @@ class DecoratorManager extends DataProvider
 
     public function getCacheKey(array $input)
     {
-        return json_encode($input);
+        return md5($this->user . $this->host . json_encode($input));
     }
 }
